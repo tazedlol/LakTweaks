@@ -7,14 +7,11 @@ function Test-Admin {
     return $p.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
 }
 function Ensure-Admin {
-    if (-not (Test-Admin)) {
-        $psi = New-Object System.Diagnostics.ProcessStartInfo
-        $psi.FileName = 'powershell.exe'
-        $psi.Arguments = '-ExecutionPolicy Bypass -NoProfile -File "' + $PSCommandPath + '"'
-        $psi.Verb = 'runas'
-        [Diagnostics.Process]::Start($psi) | Out-Null
-        exit
-    }
+    if (Test-Admin) { return }
+
+    $msg = 'Run PowerShell as Administrator, then launch LakTweaks again.'
+    [System.Windows.MessageBox]::Show($msg, 'LakTweaks', 'OK', 'Warning') | Out-Null
+    throw 'Administrator privileges are required to apply tweaks.'
 }
 $script:Catalog = @'
 [
@@ -436,8 +433,11 @@ $script:Catalog = @'
   }
 ]
 '@ | ConvertFrom-Json
-$script:SettingsPath = Join-Path $env:APPDATA 'LakTweaks	i-settings.json'
-New-Item -ItemType Directory -Force -Path (Split-Path $script:SettingsPath -Parent) | Out-Null
+$script:SettingsDir = Join-Path $env:APPDATA 'LakTweaks'
+$script:SettingsPath = Join-Path $script:SettingsDir 'ui-settings.json'
+if (-not (Test-Path $script:SettingsDir)) {
+    New-Item -ItemType Directory -Force -Path $script:SettingsDir | Out-Null
+}
 $script:CurrentAccent = '#00ffe7'
 $script:CurrentBgOpacity = 0.92
 $script:CurrentGlow = 0.65
@@ -451,20 +451,34 @@ function Get-ArgbBrush([string]$hex, [double]$opacity) {
     [Windows.Media.SolidColorBrush]::new([Windows.Media.Color]::FromArgb([byte]([Math]::Round(255 * $opacity)),$c.R,$c.G,$c.B))
 }
 function Save-UiSettings {
-    [ordered]@{ Accent=$script:CurrentAccent; BgOpacity=$script:CurrentBgOpacity; Glow=$script:CurrentGlow; Compact=$script:CurrentCompact; Clean=$script:CurrentClean; Scanlines=$script:CurrentScanlines; Grid=$script:CurrentGrid } | ConvertTo-Json | Set-Content -Path $script:SettingsPath -Encoding UTF8
+    $settings = [ordered]@{
+        Accent    = $script:CurrentAccent
+        BgOpacity = $script:CurrentBgOpacity
+        Glow      = $script:CurrentGlow
+        Compact   = $script:CurrentCompact
+        Clean     = $script:CurrentClean
+        Scanlines = $script:CurrentScanlines
+        Grid      = $script:CurrentGrid
+    }
+
+    $settings | ConvertTo-Json -Depth 3 | Set-Content -Path $script:SettingsPath -Encoding UTF8
 }
 function Load-UiSettings {
-    if (Test-Path $script:SettingsPath) {
-        try {
-            $obj = Get-Content $script:SettingsPath -Raw | ConvertFrom-Json
-            if ($obj.Accent) { $script:CurrentAccent = $obj.Accent }
-            if ($null -ne $obj.BgOpacity) { $script:CurrentBgOpacity = [double]$obj.BgOpacity }
-            if ($null -ne $obj.Glow) { $script:CurrentGlow = [double]$obj.Glow }
-            if ($null -ne $obj.Compact) { $script:CurrentCompact = [bool]$obj.Compact }
-            if ($null -ne $obj.Clean) { $script:CurrentClean = [bool]$obj.Clean }
-            if ($null -ne $obj.Scanlines) { $script:CurrentScanlines = [double]$obj.Scanlines }
-            if ($null -ne $obj.Grid) { $script:CurrentGrid = [double]$obj.Grid }
-        } catch {}
+    if (-not (Test-Path $script:SettingsPath)) {
+        return
+    }
+
+    try {
+        $obj = Get-Content -Path $script:SettingsPath -Raw | ConvertFrom-Json
+        if ($obj.Accent)              { $script:CurrentAccent = [string]$obj.Accent }
+        if ($null -ne $obj.BgOpacity) { $script:CurrentBgOpacity = [double]$obj.BgOpacity }
+        if ($null -ne $obj.Glow)      { $script:CurrentGlow = [double]$obj.Glow }
+        if ($null -ne $obj.Compact)   { $script:CurrentCompact = [bool]$obj.Compact }
+        if ($null -ne $obj.Clean)     { $script:CurrentClean = [bool]$obj.Clean }
+        if ($null -ne $obj.Scanlines) { $script:CurrentScanlines = [double]$obj.Scanlines }
+        if ($null -ne $obj.Grid)      { $script:CurrentGrid = [double]$obj.Grid }
+    }
+    catch {
     }
 }
 function Export-Bat([object[]]$selected, [string]$path) {
@@ -546,14 +560,40 @@ function Show-UiSettings {
     foreach($preset in @(@{Name='Cyan Core';Hex='#00ffe7'},@{Name='Pink Surge';Hex='#ff3cac'},@{Name='Gold Rush';Hex='#f9c74f'},@{Name='Purple Voltage';Hex='#784dff'},@{Name='Red Strike';Hex='#ff4757'})) { $b=[Windows.Controls.Button]::new(); $b.Content=$preset.Name; $b.Margin='0,0,8,8'; $b.Padding='12,10'; $b.Background=Get-ArgbBrush $preset.Hex 0.18; $b.BorderBrush=Get-ArgbBrush $preset.Hex 0.55; $b.Foreground='White'; $b.Tag=$preset.Hex; $b.Add_Click({ $script:CurrentAccent = $this.Tag; Apply-Theme; Show-UiSettings; Save-UiSettings }); $presetPanel.Children.Add($b)|Out-Null }
     $stack.Children.Add($presetPanel)|Out-Null
     function Add-SliderRow($parent,$label,$min,$max,$val,$onChanged) { $sp=[Windows.Controls.StackPanel]::new(); $sp.Margin='0,4,0,10'; $tb=[Windows.Controls.TextBlock]::new(); $tb.Text=$label; $tb.Foreground='White'; $sp.Children.Add($tb)|Out-Null; $sl=[Windows.Controls.Slider]::new(); $sl.Minimum=$min; $sl.Maximum=$max; $sl.Value=$val; $sl.Margin='0,4,0,0'; $sl.Add_ValueChanged($onChanged); $sp.Children.Add($sl)|Out-Null; $parent.Children.Add($sp)|Out-Null }
-    Add-SliderRow $stack 'Background Opacity' 45 100 ($script:CurrentBgOpacity*100) { $script:CurrentBgOpacity = [math]::Round($this.Value/100,2); Save-UiSettings }
-    Add-SliderRow $stack 'Glow Strength' 0 100 ($script:CurrentGlow*100) { $script:CurrentGlow = [math]::Round($this.Value/100,2); Save-UiSettings }
-    Add-SliderRow $stack 'Grid Strength' 0 100 ($script:CurrentGrid*100) { $script:CurrentGrid = [math]::Round($this.Value/100,2); Save-UiSettings }
-    Add-SliderRow $stack 'Scanlines' 0 100 ($script:CurrentScanlines*100) { $script:CurrentScanlines = [math]::Round($this.Value/100,2); Save-UiSettings }
+    Add-SliderRow $stack 'Background Opacity' 45 100 ($script:CurrentBgOpacity*100) {
+        $script:CurrentBgOpacity = [math]::Round($this.Value/100,2)
+        Save-UiSettings
+        Show-UiSettings
+    }
+    Add-SliderRow $stack 'Glow Strength' 0 100 ($script:CurrentGlow*100) {
+        $script:CurrentGlow = [math]::Round($this.Value/100,2)
+        Save-UiSettings
+        Show-UiSettings
+    }
+    Add-SliderRow $stack 'Grid Strength' 0 100 ($script:CurrentGrid*100) {
+        $script:CurrentGrid = [math]::Round($this.Value/100,2)
+        Save-UiSettings
+        Show-UiSettings
+    }
+    Add-SliderRow $stack 'Scanlines' 0 100 ($script:CurrentScanlines*100) {
+        $script:CurrentScanlines = [math]::Round($this.Value/100,2)
+        Save-UiSettings
+        Show-UiSettings
+    }
     $accentBox=[Windows.Controls.TextBox]::new(); $accentBox.Text=$script:CurrentAccent; $accentBox.Margin='0,6,0,0'; $accentBox.Background='#101820'; $accentBox.Foreground='White'; $accentBox.BorderBrush=Get-ArgbBrush $script:CurrentAccent 0.55; $stack.Children.Add($accentBox)|Out-Null
     $accentApply=[Windows.Controls.Button]::new(); $accentApply.Content='Apply Accent'; $accentApply.Margin='0,8,0,0'; $accentApply.Padding='10,8'; $accentApply.Add_Click({ try { [void](Get-ColorBrush $accentBox.Text); $script:CurrentAccent = $accentBox.Text; Apply-Theme; Show-UiSettings; Save-UiSettings } catch { [System.Windows.MessageBox]::Show('Use a valid hex color like #00ffe7') | Out-Null } }); $stack.Children.Add($accentApply)|Out-Null
-    $compactCb=[Windows.Controls.CheckBox]::new(); $compactCb.Content='Compact Mode'; $compactCb.IsChecked=$script:CurrentCompact; $compactCb.Margin='0,8,0,6'; $compactCb.Foreground='White'; $compactCb.Add_Click({ $script:CurrentCompact = [bool]$this.IsChecked; Save-UiSettings }); $stack.Children.Add($compactCb)|Out-Null
-    $cleanCb=[Windows.Controls.CheckBox]::new(); $cleanCb.Content='Clean Mode'; $cleanCb.IsChecked=$script:CurrentClean; $cleanCb.Margin='0,0,0,8'; $cleanCb.Foreground='White'; $cleanCb.Add_Click({ $script:CurrentClean = [bool]$this.IsChecked; Save-UiSettings }); $stack.Children.Add($cleanCb)|Out-Null
+    $compactCb=[Windows.Controls.CheckBox]::new(); $compactCb.Content='Compact Mode'; $compactCb.IsChecked=$script:CurrentCompact; $compactCb.Margin='0,8,0,6'; $compactCb.Foreground='White'; $compactCb.Add_Click({
+        $script:CurrentCompact = [bool]$this.IsChecked
+        Save-UiSettings
+        if($SidebarList.SelectedItem -and $SidebarList.SelectedItem.Tag -eq 'ui'){ Show-UiSettings }
+        elseif($SidebarList.SelectedItem){ Show-Section $SidebarList.SelectedItem.Tag }
+    }); $stack.Children.Add($compactCb)|Out-Null
+    $cleanCb=[Windows.Controls.CheckBox]::new(); $cleanCb.Content='Clean Mode'; $cleanCb.IsChecked=$script:CurrentClean; $cleanCb.Margin='0,0,0,8'; $cleanCb.Foreground='White'; $cleanCb.Add_Click({
+        $script:CurrentClean = [bool]$this.IsChecked
+        Save-UiSettings
+        if($SidebarList.SelectedItem -and $SidebarList.SelectedItem.Tag -eq 'ui'){ Show-UiSettings }
+        elseif($SidebarList.SelectedItem){ Show-Section $SidebarList.SelectedItem.Tag }
+    }); $stack.Children.Add($cleanCb)|Out-Null
     $row=[Windows.Controls.WrapPanel]::new(); $row.Margin='0,12,0,0'
     $reset=[Windows.Controls.Button]::new(); $reset.Content='Reset UI'; $reset.Padding='12,8'; $reset.Margin='0,0,8,0'; $reset.Add_Click({ $script:CurrentAccent='#00ffe7'; $script:CurrentBgOpacity=0.92; $script:CurrentGlow=0.65; $script:CurrentCompact=$false; $script:CurrentClean=$false; $script:CurrentScanlines=0.30; $script:CurrentGrid=0.30; Save-UiSettings; Apply-Theme; Show-UiSettings }); $row.Children.Add($reset)|Out-Null
     $random=[Windows.Controls.Button]::new(); $random.Content='Randomize'; $random.Padding='12,8'; $random.Add_Click({ $colors='#00ffe7','#ff3cac','#f9c74f','#784dff','#ff4757','#21d4fd'; $script:CurrentAccent=Get-Random $colors; $script:CurrentBgOpacity=[math]::Round((Get-Random -Minimum 55 -Maximum 97)/100,2); $script:CurrentGlow=[math]::Round((Get-Random -Minimum 25 -Maximum 100)/100,2); $script:CurrentGrid=[math]::Round((Get-Random -Minimum 10 -Maximum 70)/100,2); $script:CurrentScanlines=[math]::Round((Get-Random -Minimum 0 -Maximum 60)/100,2); Save-UiSettings; Apply-Theme; Show-UiSettings }); $row.Children.Add($random)|Out-Null
