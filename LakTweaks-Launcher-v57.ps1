@@ -969,7 +969,7 @@ function Get-LakHardwareSummary {
 }
 
 function Initialize-FastPerformanceCounters {
-    # v57 ALIGN FIX: live stats without UI lag.
+    # v57 : live stats without UI lag.
     # CPU/RAM use lightweight PerformanceCounter objects, not repeated CIM/WMI calls.
     $script:LastCpuPct = '...'
     $script:LastRamPct = '...'
@@ -1099,7 +1099,7 @@ function Backup-LakFullRegistry {
         cmd.exe /c ('reg export HKLM "' + $hklm + '" /y') | Out-Null
         cmd.exe /c ('reg export HKCU "' + $hkcu + '" /y') | Out-Null
         Write-Log ('Full registry backup saved to ' + $dir) 'OK'
-        [System.Windows.MessageBox]::Show('Full registry backup saved to:`n' + $dir, 'LakTweaks v57 ALIGN FIX', 'OK', 'Information') | Out-Null
+        [System.Windows.MessageBox]::Show('Full registry backup saved to:`n' + $dir, 'LakTweaks v57', 'OK', 'Information') | Out-Null
     } catch { Write-Log ('Full backup failed: ' + $_.Exception.Message) 'FAIL' }
 }
 
@@ -1112,7 +1112,7 @@ function Restore-LakFullRegistry {
             [System.Windows.MessageBox]::Show('No full backup found. Click FULL BACKUP first.', 'LakTweaks', 'OK', 'Warning') | Out-Null
             return
         }
-        $r = [System.Windows.MessageBox]::Show('Restore the saved full registry backup now? You should reboot after restoring.', 'LakTweaks v57 ALIGN FIX', 'YesNo', 'Warning')
+        $r = [System.Windows.MessageBox]::Show('Restore the saved full registry backup now? You should reboot after restoring.', 'LakTweaks v57', 'YesNo', 'Warning')
         if ($r -ne 'Yes') { return }
         Write-Log 'Restoring full registry backup...' 'WARN'
         cmd.exe /c ('reg import "' + $hklm + '"') | Out-Null
@@ -1263,7 +1263,7 @@ Load-AppliedTweaks
 [xml]$xaml = @"
 <Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="LakTweaks v57 ALIGN FIX"
+        Title="LakTweaks v57"
         Height="900" Width="1720"
         MinHeight="760" MinWidth="1200"
         WindowStartupLocation="CenterScreen"
@@ -1414,7 +1414,7 @@ Load-AppliedTweaks
             <Grid>
               <Grid.ColumnDefinitions><ColumnDefinition Width="26"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
               <TextBlock Text="✓" FontSize="16" FontWeight="Black" Foreground="#00ffe7" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-              <TextBox x:Name="LogBox" Grid.Column="1" IsReadOnly="True" TextWrapping="NoWrap" AcceptsReturn="False" VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Disabled" Background="Transparent" Foreground="#00ffe7" BorderThickness="0" FontFamily="Consolas" FontSize="10.5" FontWeight="Bold" Padding="0,2,8,0" Text="LakTweaks v57 ALIGN FIX ready. v47-style button alignment restored."/>
+              <TextBox x:Name="LogBox" Grid.Column="1" IsReadOnly="True" TextWrapping="NoWrap" AcceptsReturn="False" VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Disabled" Background="Transparent" Foreground="#00ffe7" BorderThickness="0" FontFamily="Consolas" FontSize="10.5" FontWeight="Bold" Padding="0,2,8,0" Text="LakTweaks v57 ready. v47-style button alignment restored."/>
             </Grid>
           </Border>
         </Grid>
@@ -2148,7 +2148,7 @@ foreach ($btnName in 'ThemeCyan','ThemePink','ThemeGold','ThemePurple','ThemeRed
 
     $r = [System.Windows.MessageBox]::Show(
         "Apply $($selected.Count) selected tweak(s)?$warningText`n`nA restore point is recommended before applying service, BCD, or Extreme Mode tweaks.",
-        'LakTweaks v57 ALIGN FIX','YesNo','Warning')
+        'LakTweaks','YesNo','Warning')
     if ($r -ne 'Yes') { return }
 
     try {
@@ -2173,9 +2173,9 @@ foreach ($btnName in 'ThemeCyan','ThemePink','ThemeGold','ThemePurple','ThemeRed
         Write-Log ("Apply complete. Success=" + $result.Succeeded.Count + " Failed=" + $result.Failed.Count) 'INFO'
 
         if ($result.Failed.Count -gt 0) {
-            [System.Windows.MessageBox]::Show("Applied $($result.Succeeded.Count), failed $($result.Failed.Count). Check the log panel, then use RETRY FAILED if needed.", 'LakTweaks v57 ALIGN FIX', 'OK', 'Warning') | Out-Null
+            [System.Windows.MessageBox]::Show("Applied $($result.Succeeded.Count), failed $($result.Failed.Count). Check the log panel, then use RETRY FAILED if needed.", 'LakTweaks v57', 'OK', 'Warning') | Out-Null
         } else {
-            [System.Windows.MessageBox]::Show("Applied $($result.Succeeded.Count) tweak(s) successfully.`nReboot your PC for full effect.", 'LakTweaks v57 ALIGN FIX', 'OK', 'Information') | Out-Null
+            [System.Windows.MessageBox]::Show("Applied $($result.Succeeded.Count) tweak(s) successfully.`nReboot your PC for full effect.", 'LakTweaks v57', 'OK', 'Information') | Out-Null
         }
     } catch {
         Write-Log ('Apply engine error: ' + $_.Exception.Message) 'FAIL'
