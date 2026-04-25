@@ -1185,7 +1185,7 @@ Load-AppliedTweaks
         <StackPanel Orientation="Vertical" VerticalAlignment="Center">
           <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
             <TextBlock x:Name="LogoText" Text="LAKTWEAKS" FontSize="28" FontWeight="Black" Foreground="#ffffff"/>
-            <TextBlock Text=" v45" FontSize="25" FontWeight="Black" Foreground="#00ffe7" Margin="14,0,0,0"/>
+            <TextBlock Text=" v47" FontSize="25" FontWeight="Black" Foreground="#00ffe7" Margin="14,0,0,0"/>
             <Border CornerRadius="8" Padding="13,4" Margin="14,4,0,0" Background="#1d1236" BorderBrush="#784dff" BorderThickness="1.2">
               <TextBlock Text="ULTIMATE" FontSize="15" FontWeight="Black" Foreground="#b98cff"/>
             </Border>
@@ -1281,7 +1281,7 @@ Load-AppliedTweaks
         <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center"><TextBlock Text="🛡" FontSize="21" Foreground="#2ed573" Margin="0,0,10,0"/><TextBlock Text="SYSTEM OPTIMIZED" Foreground="#ffffff" FontSize="13" FontWeight="Bold"/></StackPanel>
         <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center"><TextBlock Text="⚡" FontSize="22" Foreground="#ffaa2b" Margin="0,0,10,0"/><TextBlock Text="POWER MODE: " Foreground="#ffffff" FontSize="13" FontWeight="Bold"/><TextBlock Text="ULTIMATE PERFORMANCE" Foreground="#b54cff" FontSize="13" FontWeight="Bold"/></StackPanel>
         <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center"><TextBlock Text="◷" FontSize="22" Foreground="#ffffff" Margin="0,0,10,0"/><TextBlock Text="LAST UPDATED: " Foreground="#ffffff" FontSize="13" FontWeight="Bold"/><TextBlock x:Name="LastUpdatedText" Text="--" Foreground="#00ffe7" FontSize="13" FontWeight="Bold"/></StackPanel>
-        <Border Grid.Column="3" CornerRadius="10" BorderBrush="#00a7c8" BorderThickness="1" Padding="16,7" HorizontalAlignment="Center" VerticalAlignment="Center"><TextBlock Text="v45.0.0" Foreground="#00ffe7" FontSize="13" FontWeight="Black"/></Border>
+        <Border Grid.Column="3" CornerRadius="10" BorderBrush="#00a7c8" BorderThickness="1" Padding="16,7" HorizontalAlignment="Center" VerticalAlignment="Center"><TextBlock Text="v47.0.0" Foreground="#00ffe7" FontSize="13" FontWeight="Black"/></Border>
       </Grid>
     </Border>
 
