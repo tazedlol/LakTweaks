@@ -1981,12 +1981,12 @@ function Show-UiSettings {
     $aboutStack = [Windows.Controls.StackPanel]::new()
 
     $aTitle = [Windows.Controls.TextBlock]::new()
-    $aTitle.Text = 'LAK TWEAKS GOD  —  Version 35'
+    $aTitle.Text = 'LAK TWEAKS GOD  —  Version 47'
     $aTitle.Foreground = Get-ColorBrush $script:CurrentAccent; $aTitle.FontWeight = 'Bold'; $aTitle.Margin = '0,0,0,8'
     $aboutStack.Children.Add($aTitle) | Out-Null
 
     $aBody = [Windows.Controls.TextBlock]::new()
-    $aBody.Text = 'Built from: Lak Tweaks original .bat  •  Flipz Elite Tuning  •  Lumin Nvidia tweaks  •  LuminDebloater  •  MSI Util interrupt modes  •  O&O ShutUp10 privacy  •  Chris Titus Tech network/service recommendations  •  Sigmaligma / Message TCP/AFD profiles  •  Delay Destroyer per-adapter tweaks'
+    $aBody.Text = 'Built By: Lak'
     $aBody.TextWrapping = 'Wrap'; $aBody.Foreground = Get-ColorBrush '#5a8a85'; $aBody.FontSize = 11; $aBody.Margin = '0,0,0,10'
     $aboutStack.Children.Add($aBody) | Out-Null
 
