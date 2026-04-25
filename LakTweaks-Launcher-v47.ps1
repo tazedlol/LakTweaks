@@ -1121,7 +1121,7 @@ Load-AppliedTweaks
 [xml]$xaml = @"
 <Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="LakTweaks v45 CLEAN FIT"
+        Title="LakTweaks v47 CLEAN FIT"
         Height="900" Width="1720"
         MinHeight="760" MinWidth="1200"
         WindowStartupLocation="CenterScreen"
@@ -1789,7 +1789,7 @@ function Show-UiSettings {
     $aboutStack = [Windows.Controls.StackPanel]::new()
 
     $aTitle = [Windows.Controls.TextBlock]::new()
-    $aTitle.Text = 'LAK TWEAKS GOD  —  Version 35'
+    $aTitle.Text = 'LAK TWEAKS GOD  —  Version 47'
     $aTitle.Foreground = Get-ColorBrush $script:CurrentAccent; $aTitle.FontWeight = 'Bold'; $aTitle.Margin = '0,0,0,8'
     $aboutStack.Children.Add($aTitle) | Out-Null
 
