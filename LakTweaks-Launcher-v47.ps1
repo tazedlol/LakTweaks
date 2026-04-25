@@ -1794,7 +1794,7 @@ function Show-UiSettings {
     $aboutStack.Children.Add($aTitle) | Out-Null
 
     $aBody = [Windows.Controls.TextBlock]::new()
-    $aBody.Text = 'Built from: Lak Tweaks original .bat  •  Flipz Elite Tuning  •  Lumin Nvidia tweaks  •  LuminDebloater  •  MSI Util interrupt modes  •  O&O ShutUp10 privacy  •  Chris Titus Tech network/service recommendations  •  Sigmaligma / Message TCP/AFD profiles  •  Delay Destroyer per-adapter tweaks'
+    $aBody.Text = 'Built by: Lak'
     $aBody.TextWrapping = 'Wrap'; $aBody.Foreground = Get-ColorBrush '#5a8a85'; $aBody.FontSize = 11; $aBody.Margin = '0,0,0,10'
     $aboutStack.Children.Add($aBody) | Out-Null
 
